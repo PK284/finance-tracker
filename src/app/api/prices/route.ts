@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { fetchAllPrices } from '@/lib/fetcher';
 
+export const dynamic = 'force-dynamic';
+
+
 /**
  * GET /api/prices
  * Returns the latest prices for all 7 assets.
@@ -18,7 +21,8 @@ export async function GET() {
   // ── Path A: Supabase configured — read from DB ─────────────────────────
   if (isSupabaseConfigured) {
     try {
-      const { supabase } = await import('@/lib/supabase');
+      const { getSupabase } = await import('@/lib/supabase');
+      const supabase = getSupabase();
 
       const { data: latestRaw, error: err1 } = await supabase
         .from('price_logs')

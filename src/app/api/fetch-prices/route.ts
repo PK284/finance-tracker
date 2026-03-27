@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { fetchAllPrices } from '@/lib/fetcher';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/fetch-prices
  * Returns live prices for all 7 assets without writing to DB.

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchAllPrices } from '@/lib/fetcher';
-import { supabaseAdmin } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { format } from 'date-fns';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/log-prices
@@ -17,11 +19,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const db = getSupabaseAdmin();
     const today = format(new Date(), 'yyyy-MM-dd');
     const yesterday = format(new Date(Date.now() - 86_400_000), 'yyyy-MM-dd');
 
     // ── Fetch yesterday's prices for % change calculation ─────────────────
-    const { data: prevRows } = await supabaseAdmin
+    const { data: prevRows } = await db
         .from('price_logs')
         .select('asset_key, price')
         .eq('created_date', yesterday);
@@ -51,7 +54,7 @@ export async function POST(request: NextRequest) {
     });
 
     // ── Upsert (safe to call multiple times the same day) ─────────────────
-    const { error } = await supabaseAdmin
+    const { error } = await db
         .from('price_logs')
         .upsert(rows, { onConflict: 'asset_key,created_date' });
 
