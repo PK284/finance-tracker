@@ -1,0 +1,30 @@
+name: Daily Finance Log
+
+on:
+  schedule:
+    # 6:00 AM IST = 00:30 UTC
+    - cron: '30 0 * * *'
+  workflow_dispatch: {}   # allows manual trigger from GitHub UI
+
+jobs:
+  log-prices:
+    name: Fetch & log all prices
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping log-prices endpoint
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.VERCEL_URL }}/api/log-prices")
+
+          echo "HTTP Status: $RESPONSE"
+
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "❌ Log failed with status $RESPONSE"
+            exit 1
+          fi
+
+          echo "✅ Prices logged successfully"

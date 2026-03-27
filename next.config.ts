@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Allow Node.js-only packages in server-side API routes
+  serverExternalPackages: ["yahoo-finance2", "cheerio"],
 };
 
 export default nextConfig;
