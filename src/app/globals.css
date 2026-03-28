@@ -1,108 +1,156 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
 :root {
-  --bg-primary: #07070f;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --text-primary: #f0f0f5;
+  --bg-primary: #0a0b14;
+  --bg-surface: #0f1020;
+  --bg-card: rgba(255, 255, 255, 0.025);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --text-primary: #eef0f6;
   --text-secondary: rgba(255, 255, 255, 0.45);
-  --accent-teal: #00d2ff;
-  --accent-green: #00ff87;
-  --accent-red: #ff4757;
+  --text-muted: rgba(255, 255, 255, 0.22);
+  --accent-cyan: #00d4ff;
+  --accent-green: #00e68a;
+  --accent-red: #ff5470;
+  --accent-purple: #966bff;
+  --accent-amber: #ffb347;
+  --accent-orange: #ff7849;
+  --radius: 18px;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar */
+/* ── Scrollbar ─────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
-/* ── Animated background mesh ─────────────────────────────── */
+/* ── Animated background ───────────────────────── */
 .bg-mesh {
   position: fixed;
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 50% at 15% -5%,  rgba(99,58,255,0.11)   0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 110%, rgba(0,210,255,0.09)   0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 50% 50%,  rgba(0,255,135,0.04)  0%, transparent 70%),
-    radial-gradient(ellipse 40% 35% at 80% 10%,  rgba(245,158,11,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 10% -15%, rgba(150,107,255,0.12)  0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 105%, rgba(0,212,255,0.08)    0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,  rgba(0,230,138,0.04)   0%, transparent 65%),
+    radial-gradient(ellipse 35% 25% at 75% 15%,  rgba(255,179,71,0.05)  0%, transparent 50%),
+    radial-gradient(ellipse 90% 70% at 50% 100%, rgba(15,16,32,1)       0%, transparent 80%),
     var(--bg-primary);
   pointer-events: none;
 }
 
-/* ── Card enter animation ──────────────────────────────────── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0);    }
+/* Floating ambient orbs */
+.bg-mesh::before,
+.bg-mesh::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: float 20s ease-in-out infinite;
 }
-.card-enter {
-  animation: fadeInUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+.bg-mesh::before {
+  width: 400px; height: 400px;
+  top: -100px; left: -50px;
+  background: rgba(150,107,255,0.08);
+}
+.bg-mesh::after {
+  width: 350px; height: 350px;
+  bottom: -80px; right: -30px;
+  background: rgba(0,212,255,0.06);
+  animation-delay: -10s;
+  animation-direction: reverse;
 }
 
-/* ── Live pulse dot ────────────────────────────────────────── */
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1);    box-shadow: 0 0 6px  var(--accent-green); }
-  50%       { opacity: 0.6; transform: scale(0.8); box-shadow: 0 0 12px var(--accent-green); }
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(30px, -20px) scale(1.05); }
+  66%      { transform: translate(-20px, 15px) scale(0.95); }
+}
+
+/* ── Card animations ───────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+.card-enter {
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Live pulse ────────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--accent-green), 0 0 12px rgba(0,230,138,0.3); }
+  50%      { opacity: 0.5; box-shadow: 0 0 2px var(--accent-green), 0 0 6px  rgba(0,230,138,0.15); }
 }
 .live-dot {
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--accent-green);
-  box-shadow: 0 0 8px var(--accent-green);
-  animation: pulse-dot 2s ease-in-out infinite;
+  animation: pulse-glow 2.5s ease-in-out infinite;
   display: inline-block;
 }
 
-/* ── Loading skeleton ──────────────────────────────────────── */
+/* ── Skeleton ──────────────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position: -600px 0; }
-  100% { background-position:  600px 0; }
+  0%   { background-position: -800px 0; }
+  100% { background-position:  800px 0; }
 }
 .skeleton {
   background: linear-gradient(90deg,
-    rgba(255,255,255,0.03) 25%,
-    rgba(255,255,255,0.07) 50%,
-    rgba(255,255,255,0.03) 75%);
-  background-size: 1200px 100%;
-  animation: shimmer 1.8s infinite;
-  border-radius: 20px;
+    rgba(255,255,255,0.02) 30%,
+    rgba(255,255,255,0.06) 50%,
+    rgba(255,255,255,0.02) 70%);
+  background-size: 1600px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: var(--radius);
 }
 
-/* ── Number glow effects ───────────────────────────────────── */
-.number-glow-green { text-shadow: 0 0 14px rgba(0,255,135,0.55); }
-.number-glow-red   { text-shadow: 0 0 14px rgba(255,71,87,0.55);  }
-
-/* ── Refresh spin ──────────────────────────────────────────── */
+/* ── Refresh spin ──────────────────────────────── */
 @keyframes spin {
-  from { transform: rotate(0deg);   }
+  from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
 
-/* ── Stat pill in market bar ───────────────────────────────── */
+/* ── Stat pills ────────────────────────────────── */
 .stat-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 12px;
+  gap: 4px;
+  padding: 5px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.01em;
+}
+
+/* ── Bar pulse for sparkline placeholder ───────── */
+@keyframes bar-pulse {
+  from { opacity: 0.25; transform: scaleY(0.65); }
+  to   { opacity: 0.7;  transform: scaleY(1);    }
+}
+
+/* ── Noise texture overlay for premium feel ────── */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.015;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
 }
