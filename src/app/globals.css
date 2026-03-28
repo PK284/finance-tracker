@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0a0a0f;
+  --bg-primary: #07070f;
   --bg-card: rgba(255, 255, 255, 0.03);
   --border-subtle: rgba(255, 255, 255, 0.07);
   --text-primary: #f0f0f5;
-  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-secondary: rgba(255, 255, 255, 0.45);
   --accent-teal: #00d2ff;
   --accent-green: #00ff87;
   --accent-red: #ff4757;
@@ -27,91 +27,82 @@ body {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-/* Animated gradient background mesh */
+/* ── Animated background mesh ─────────────────────────────── */
 .bg-mesh {
   position: fixed;
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(0, 210, 255, 0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99, 58, 255, 0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(0, 255, 135, 0.03) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 50% at 15% -5%,  rgba(99,58,255,0.11)   0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 110%, rgba(0,210,255,0.09)   0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 50% 50%,  rgba(0,255,135,0.04)  0%, transparent 70%),
+    radial-gradient(ellipse 40% 35% at 80% 10%,  rgba(245,158,11,0.05) 0%, transparent 55%),
     var(--bg-primary);
   pointer-events: none;
 }
 
-/* Fade-in animation for cards */
+/* ── Card enter animation ──────────────────────────────────── */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
-
 .card-enter {
-  animation: fadeInUp 0.4s ease-out both;
+  animation: fadeInUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
 }
 
-/* Pulse dot for "live" indicator */
+/* ── Live pulse dot ────────────────────────────────────────── */
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
+  0%, 100% { opacity: 1; transform: scale(1);    box-shadow: 0 0 6px  var(--accent-green); }
+  50%       { opacity: 0.6; transform: scale(0.8); box-shadow: 0 0 12px var(--accent-green); }
 }
-
 .live-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--accent-green);
-  box-shadow: 0 0 6px var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
   animation: pulse-dot 2s ease-in-out infinite;
   display: inline-block;
 }
 
-/* Shimmer loading skeleton */
+/* ── Loading skeleton ──────────────────────────────────────── */
 @keyframes shimmer {
-  0% { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
 }
-
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
-  background-size: 800px 100%;
-  animation: shimmer 1.6s infinite;
-  border-radius: 8px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.07) 50%,
+    rgba(255,255,255,0.03) 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.8s infinite;
+  border-radius: 20px;
 }
 
-/* Number glow on positive values */
-.number-glow-green {
-  text-shadow: 0 0 12px rgba(0, 255, 135, 0.5);
+/* ── Number glow effects ───────────────────────────────────── */
+.number-glow-green { text-shadow: 0 0 14px rgba(0,255,135,0.55); }
+.number-glow-red   { text-shadow: 0 0 14px rgba(255,71,87,0.55);  }
+
+/* ── Refresh spin ──────────────────────────────────────────── */
+@keyframes spin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
 }
 
-.number-glow-red {
-  text-shadow: 0 0 12px rgba(255, 71, 87, 0.5);
-}
-
-/* Glass card override for Tailwind compatibility */
-.glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* ── Stat pill in market bar ───────────────────────────────── */
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
