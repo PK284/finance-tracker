@@ -37,7 +37,21 @@ async function fetchUsdInr(): Promise<FetchedPrice> {
 }
 
 // ── Gold (GoldAPI.io → INR per gram) ──────────────────────────────────────
-async function fetchGold(): Promise<FetchedPrice> {
+async function fetchGold(allowApiHit: boolean = false): Promise<FetchedPrice> {
+  const baseData = { asset_key: 'GOLD', asset_name: 'Gold', currency: 'INR', unit: 'per gram' };
+  
+  if (!allowApiHit) {
+    // 🛑 HARD RULE: Do not hit the API. Use cached Supabase value.
+    try {
+      const { getSupabaseAdmin } = await import('./supabase');
+      const db = getSupabaseAdmin();
+      const { data } = await db.from('price_logs').select('price').eq('asset_key', 'GOLD').order('created_date', { ascending: false }).limit(1);
+      if (data && data.length > 0) return { ...baseData, price: data[0].price, source: 'DB Cache (API protected)' };
+    } catch (_) {}
+    return { ...baseData, price: 0, source: 'DB Cache Failed', error: 'API hit blocked by hard rule' };
+  }
+
+  // ALLOWED TO HIT API
   try {
     const res = await fetch('https://www.goldapi.io/api/XAU/INR', {
       headers: { 'x-access-token': process.env.GOLD_API_KEY ?? '' },
@@ -48,20 +62,31 @@ async function fetchGold(): Promise<FetchedPrice> {
     // GoldAPI returns price per troy ounce; 1 troy oz = 31.1035 grams
     const pricePerGram = (Number(data.price) || 0) / 31.1035;
     return {
-      asset_key: 'GOLD',
-      asset_name: 'Gold',
+      ...baseData,
       price: Math.round(pricePerGram * 100) / 100,
-      currency: 'INR',
-      unit: 'per gram',
       source: 'GoldAPI.io',
     };
   } catch (e: unknown) {
-    return { asset_key: 'GOLD', asset_name: 'Gold', price: 0, currency: 'INR', unit: 'per gram', source: 'GoldAPI.io', error: String(e) };
+    return { ...baseData, price: 0, source: 'GoldAPI.io', error: String(e) };
   }
 }
 
 // ── Silver (GoldAPI.io → INR per gram) ────────────────────────────────────
-async function fetchSilver(): Promise<FetchedPrice> {
+async function fetchSilver(allowApiHit: boolean = false): Promise<FetchedPrice> {
+  const baseData = { asset_key: 'SILVER', asset_name: 'Silver', currency: 'INR', unit: 'per gram' };
+
+  if (!allowApiHit) {
+    // 🛑 HARD RULE: Do not hit the API. Use cached Supabase value.
+    try {
+      const { getSupabaseAdmin } = await import('./supabase');
+      const db = getSupabaseAdmin();
+      const { data } = await db.from('price_logs').select('price').eq('asset_key', 'SILVER').order('created_date', { ascending: false }).limit(1);
+      if (data && data.length > 0) return { ...baseData, price: data[0].price, source: 'DB Cache (API protected)' };
+    } catch (_) {}
+    return { ...baseData, price: 0, source: 'DB Cache Failed', error: 'API hit blocked by hard rule' };
+  }
+
+  // ALLOWED TO HIT API
   try {
     const res = await fetch('https://www.goldapi.io/api/XAG/INR', {
       headers: { 'x-access-token': process.env.GOLD_API_KEY ?? '' },
@@ -71,15 +96,12 @@ async function fetchSilver(): Promise<FetchedPrice> {
     const data = await res.json();
     const pricePerGram = (Number(data.price) || 0) / 31.1035;
     return {
-      asset_key: 'SILVER',
-      asset_name: 'Silver',
+      ...baseData,
       price: Math.round(pricePerGram * 100) / 100,
-      currency: 'INR',
-      unit: 'per gram',
       source: 'GoldAPI.io',
     };
   } catch (e: unknown) {
-    return { asset_key: 'SILVER', asset_name: 'Silver', price: 0, currency: 'INR', unit: 'per gram', source: 'GoldAPI.io', error: String(e) };
+    return { ...baseData, price: 0, source: 'GoldAPI.io', error: String(e) };
   }
 }
 
@@ -186,11 +208,11 @@ async function fetchPaypal(): Promise<FetchedPrice> {
 }
 
 // ── Master fetcher ────────────────────────────────────────────────────────
-export async function fetchAllPrices(): Promise<FetchedPrice[]> {
+export async function fetchAllPrices(allowMetalsApi: boolean = false): Promise<FetchedPrice[]> {
   const results = await Promise.allSettled([
     fetchUsdInr(),
-    fetchGold(),
-    fetchSilver(),
+    fetchGold(allowMetalsApi),
+    fetchSilver(allowMetalsApi),
     fetchPetrolBangalore(),
     fetchNifty50(),
     fetchGroww(),

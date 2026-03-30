@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Fetch today's live prices ─────────────────────────────────────────
-    const prices = await fetchAllPrices();
+    // pass 'true' to allow hitting GoldAPI (cron job is the ONLY allowed caller)
+    const prices = await fetchAllPrices(true);
 
     // ── Build upsert rows ─────────────────────────────────────────────────
     const rows = prices.map((p) => {
