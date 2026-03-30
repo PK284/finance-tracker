@@ -21,17 +21,27 @@ export async function POST(request: NextRequest) {
 
     const db = getSupabaseAdmin();
     const today = format(new Date(), 'yyyy-MM-dd');
-    const yesterday = format(new Date(Date.now() - 86_400_000), 'yyyy-MM-dd');
 
-    // ── Fetch yesterday's prices for % change calculation ─────────────────
-    const { data: prevRows } = await db
+    // ── Fetch the most recent prices (from any date prior to today) ───────
+    let prevPriceMap: Record<string, number> = {};
+    const { data: latestDates } = await db
         .from('price_logs')
-        .select('asset_key, price')
-        .eq('created_date', yesterday);
+        .select('created_date')
+        .lt('created_date', today)
+        .order('created_date', { ascending: false })
+        .limit(1);
 
-    const prevPriceMap = Object.fromEntries(
-        (prevRows ?? []).map((r: { asset_key: string; price: number }) => [r.asset_key, r.price])
-    );
+    if (latestDates && latestDates.length > 0) {
+        const latestPrevDate = latestDates[0].created_date;
+        const { data: prevRows } = await db
+            .from('price_logs')
+            .select('asset_key, price')
+            .eq('created_date', latestPrevDate);
+
+        prevPriceMap = Object.fromEntries(
+            (prevRows ?? []).map((r: { asset_key: string; price: number }) => [r.asset_key, r.price])
+        );
+    }
 
     // ── Fetch today's live prices ─────────────────────────────────────────
     const prices = await fetchAllPrices();
